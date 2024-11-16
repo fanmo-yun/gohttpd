@@ -28,7 +28,7 @@ func ServerRun() {
 		zap.L().Info("Server Running", zap.String("http", address))
 		err := gohttp.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
-			zap.L().Fatal("Listen And Serve Fatal", zap.Error(err))
+			zap.L().Fatal("gohttpd: Listen And Serve Fatal", zap.Error(err))
 		}
 	}()
 
@@ -39,14 +39,14 @@ func ShutdownServer(s *http.Server) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 	<-quit
-	zap.L().Warn("Server is shutting down...")
+	zap.L().Warn("gohttpd: Server is shutting down...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := s.Shutdown(ctx); err != nil {
-		zap.L().Fatal("Server forced to shutdown", zap.Error(err))
+		zap.L().Fatal("gohttpd: Server forced to shutdown", zap.Error(err))
 	}
 
-	zap.L().Warn("Server exiting")
+	zap.L().Warn("gohttpd: Server exiting")
 }

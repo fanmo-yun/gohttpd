@@ -1,12 +1,12 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
 
+	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 )
 
@@ -107,7 +107,7 @@ func CoverConfig(c *Config) {
 				if len(s) > 1 {
 					c.Static.Index = s[1]
 				} else {
-					fmt.Fprintf(os.Stdout, "gohttp: Config Cannot Init\n")
+					zap.L().Fatal("gohttpd: Config Cannot Init")
 					os.Exit(1001)
 				}
 			}
@@ -120,11 +120,11 @@ func LoadConfig() *Config {
 	configPath := filepath.Join("conf", "gohttpd.yaml")
 	confData, readErr := os.ReadFile(configPath)
 	if readErr != nil {
-		fmt.Fprintf(os.Stdout, "gohttp: Config Cannot Init\n")
+		zap.L().Fatal("gohttpd: Config Cannot Init", zap.String("config", readErr.Error()))
 		os.Exit(1001)
 	}
 	if unmarshalErr := yaml.Unmarshal(confData, &config); unmarshalErr != nil {
-		fmt.Fprintf(os.Stdout, "gohttp: Config Cannot Unmarshal\n")
+		zap.L().Fatal("gohttpd: Config Cannot Unmarshal", zap.String("config", unmarshalErr.Error()))
 		os.Exit(1001)
 	}
 	CoverConfig(&config)

@@ -19,7 +19,7 @@ func NewLogger(lc utils.LoggerConfig) {
 	case "file":
 		NewFileLogger(lc.Level)
 	default:
-		fmt.Fprintf(os.Stdout, "gohttp: Log Output Error type\n")
+		zap.L().Fatal("gohttpd: Log Output Error type")
 		os.Exit(1002)
 	}
 }
@@ -28,7 +28,7 @@ func NewStdOutLogger(l string) {
 	var logLevel zapcore.Level
 	err := logLevel.UnmarshalText([]byte(l))
 	if err != nil {
-		fmt.Fprintf(os.Stdout, "gohttp: Log Level Init Fatal: %v\n", err)
+		zap.L().Fatal("gohttpd: Log Level Init Fatal", zap.String("unmarshaltext", err.Error()))
 		os.Exit(1002)
 	}
 
@@ -43,7 +43,7 @@ func NewStdOutLogger(l string) {
 
 	logger, err := cfg.Build()
 	if err != nil {
-		fmt.Fprintf(os.Stdout, "gohttp: Log Build Fatal: %v\n", err)
+		zap.L().Fatal("gohttpd: Log Build Fatal", zap.String("build", err.Error()))
 		os.Exit(1002)
 	}
 
@@ -54,7 +54,7 @@ func NewFileLogger(l string) {
 	var logLevel zapcore.Level
 	err := logLevel.UnmarshalText([]byte(l))
 	if err != nil {
-		fmt.Fprintf(os.Stdout, "gohttp: Log Level Init Fatal: %v\n", err)
+		zap.L().Fatal("gohttpd: Log Level Init Fatal", zap.String("unmarshaltext", err.Error()))
 		os.Exit(1002)
 	}
 

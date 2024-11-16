@@ -35,33 +35,33 @@ func HandleRouter(config *utils.Config) http.HandlerFunc {
 	loadBalancer := NewLoadBalancer(backends)
 
 	return func(response http.ResponseWriter, request *http.Request) {
-		zap.L().Info("Request received", zap.String("method", request.Method), zap.String("url", request.URL.String()))
+		zap.L().Info("gohttpd: Request received", zap.String("method", request.Method), zap.String("url", request.URL.String()))
 
 		urlPath := Handle(response, request)
 		if urlPath == nil {
-			zap.L().Warn("Invalid URL path")
+			zap.L().Warn("gohttpd: Invalid URL path")
 			return
 		}
 		path := urlPath.Path
 
 		if proxies != nil && FindAndServeProxy(response, request, path, proxies) {
-			zap.L().Info("Handled by proxy", zap.String("path", path))
+			zap.L().Info("gohttpd: Handled by proxy", zap.String("path", path))
 			return
 		}
 
 		if backends != nil {
 			loadBalancer.ServeHTTP(response, request)
-			zap.L().Info("Handled by load balancer", zap.String("path", path))
+			zap.L().Info("gohttpd: Handled by load balancer", zap.String("path", path))
 			return
 		}
 
 		if !config.Static.Try {
 			if !CustomRouter(response, request, path, config.Static.Dirpath, config.Custom, config.Gzip) {
-				zap.L().Info("Handled by static router", zap.String("path", path))
+				zap.L().Info("gohttpd: Handled by static router", zap.String("path", path))
 				Router(response, request, path, config.Static, config.Gzip)
 			}
 		} else {
-			zap.L().Info("Handled by try router", zap.String("path", path))
+			zap.L().Info("gohttpd: Handled by try router", zap.String("path", path))
 			TryRootRouter(response, request, path, config.Static, config.Gzip)
 		}
 	}
@@ -72,7 +72,7 @@ func CustomRouter(response http.ResponseWriter, request *http.Request, URLPath s
 		return false
 	}
 
-	zap.L().Info("Handled by custom router", zap.String("path", URLPath))
+	zap.L().Info("gohttpd: Handled by custom router", zap.String("path", URLPath))
 	for _, custom := range cus {
 		if custom.Urlpath == URLPath {
 			fullPath := filepath.Join(staticDir, filepath.Clean(custom.Filepath))
@@ -92,7 +92,7 @@ func Router(response http.ResponseWriter, request *http.Request, URLPath string,
 		fullPath := filepath.Join(h.Dirpath, filepath.Clean(URLPath))
 		SendStaticFile(response, request, fullPath, gzt)
 	}
-	zap.L().Info("Serving static file", zap.String("path", URLPath))
+	zap.L().Info("gohttpd: Serving static file", zap.String("path", URLPath))
 }
 
 func TryRootRouter(response http.ResponseWriter, request *http.Request, URLPath string, h utils.HtmlConfig, gzt bool) {
@@ -104,5 +104,5 @@ func TryRootRouter(response http.ResponseWriter, request *http.Request, URLPath 
 		fullPath := filepath.Join(h.Dirpath, filepath.Clean(URLPath))
 		SendTryRootFile(response, request, fullPath, h, gzt)
 	}
-	zap.L().Info("Serving try static file", zap.String("path", URLPath))
+	zap.L().Info("gohttpd: Serving try static file", zap.String("path", URLPath))
 }
