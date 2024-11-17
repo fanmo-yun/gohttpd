@@ -11,14 +11,14 @@ import (
 )
 
 type Config struct {
-	Server  ServerConfig    `yaml:"server,omitempty"`
-	Static  HtmlConfig      `yaml:"html,omitempty"`
-	Logger  LoggerConfig    `yaml:"logger,omitempty"`
-	Gzip    bool            `yaml:"gzip,omitempty"`
-	Custom  []CustomConfig  `yaml:"custom,omitempty"`
-	Proxy   []ProxyConfig   `yaml:"proxy,omitempty"`
-	Backend []BackendConfig `yaml:"backend,omitempty"`
-	etcd    EtcdConfig      `yaml:"etcd"`
+	Server  ServerConfig    `yaml:"server"`
+	Static  HtmlConfig      `yaml:"html"`
+	Logger  LoggerConfig    `yaml:"logger"`
+	Gzip    bool            `yaml:"gzip"`
+	Custom  []CustomConfig  `yaml:"custom"`
+	Proxy   []ProxyConfig   `yaml:"proxy"`
+	Backend []BackendConfig `yaml:"backend"`
+	Etcd    EtcdConfig      `yaml:"etcd"`
 }
 
 type ServerConfig struct {
@@ -78,13 +78,15 @@ func DefaultLogger() *LoggerConfig {
 	}
 }
 
-func CoverConfig(c *Config) {
+func TrimSpace(in string) string { return strings.Trim(in, " ") }
+
+func (c *Config) CoverConfig() {
 	if reflect.DeepEqual(c.Server, ServerConfig{}) {
 		c.Server = *DefaultServer()
 	} else {
-		if c.Server.Host == "" {
+		if TrimSpace(c.Server.Host) == "" {
 			c.Server.Host = "0.0.0.0"
-		} else if c.Server.Port == "" {
+		} else if TrimSpace(c.Server.Port) == "" {
 			c.Server.Port = "80"
 		}
 	}
@@ -92,9 +94,9 @@ func CoverConfig(c *Config) {
 	if reflect.DeepEqual(c.Logger, LoggerConfig{}) {
 		c.Logger = *DefaultLogger()
 	} else {
-		if c.Logger.Out == "" {
+		if TrimSpace(c.Logger.Out) == "" {
 			c.Logger.Out = "console"
-		} else if c.Logger.Level == "" {
+		} else if TrimSpace(c.Logger.Level) == "" {
 			c.Logger.Level = "info"
 		}
 	}
@@ -102,9 +104,9 @@ func CoverConfig(c *Config) {
 	if reflect.DeepEqual(c.Static, HtmlConfig{}) {
 		c.Static = *DefaultHtml()
 	} else {
-		if c.Static.Dirpath == "" {
+		if TrimSpace(c.Static.Dirpath) == "" {
 			c.Static.Dirpath = "html"
-		} else if c.Static.Index == "" {
+		} else if TrimSpace(c.Static.Index) == "" {
 			c.Static.Index = "index.html"
 		} else {
 			s := strings.Split(c.Static.Index, " ")
@@ -113,10 +115,14 @@ func CoverConfig(c *Config) {
 				if len(s) > 1 {
 					c.Static.Index = s[1]
 				} else {
-					zap.L().Fatal("gohttpd: Config Cannot Init")
+					zap.L().Fatal("gohttpd: html config Cannot Init")
 				}
 			}
 		}
+	}
+
+	if reflect.DeepEqual(c.Etcd, EtcdConfig{}) || len(c.Etcd.Endpoints) == 0 || TrimSpace(c.Etcd.ServiceName) == "" {
+		zap.L().Fatal("gohttpd: etcd config required")
 	}
 }
 
@@ -130,6 +136,6 @@ func LoadConfig() *Config {
 	if unmarshalErr := yaml.Unmarshal(confData, &config); unmarshalErr != nil {
 		zap.L().Fatal("gohttpd: Config Cannot Unmarshal", zap.String("config", unmarshalErr.Error()))
 	}
-	CoverConfig(&config)
+	config.CoverConfig()
 	return &config
 }

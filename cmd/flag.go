@@ -23,7 +23,7 @@ func ParseCommandAndRun() {
 
 	switch ServerType {
 	case "etcd":
-		server.EtcdServiceRegister()
+		server.EtcdServiceRegister(config.Etcd)
 	case "web":
 		web.ServerRun(*config)
 	default:

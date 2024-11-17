@@ -1,8 +1,10 @@
 package server
 
+import "gohttpd/utils"
+
 type ServiceRegister struct {
 }
 
-func EtcdServiceRegister() {
+func EtcdServiceRegister(etcdconfig utils.EtcdConfig) {
 
 }
