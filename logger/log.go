@@ -12,15 +12,18 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-func InitLogger() {
+func InitLogger() func() {
 	zaplog, err := zap.NewProduction()
 	if err != nil {
 		log.Fatalf("gohttpd: %v\n", err.Error())
 	}
 	zap.ReplaceGlobals(zaplog)
+	return func() {
+		zap.L().Sync()
+	}
 }
 
-func NewLogger(lc utils.LoggerConfig) {
+func NewLogger(lc utils.LoggerConfig) func() {
 	switch lc.Out {
 	case "console":
 		NewStdOutLogger(lc.Level)
@@ -28,6 +31,9 @@ func NewLogger(lc utils.LoggerConfig) {
 		NewFileLogger(lc.Level)
 	default:
 		zap.L().Fatal("gohttpd: Log Output Error type")
+	}
+	return func() {
+		zap.L().Sync()
 	}
 }
 

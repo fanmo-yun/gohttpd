@@ -16,7 +16,8 @@ import (
 
 func ServerRun() {
 	config := utils.LoadConfig()
-	logger.NewLogger(config.Logger)
+	cleanup := logger.NewLogger(config.Logger)
+	defer cleanup()
 
 	address := fmt.Sprintf("%s:%s", config.Server.Host, config.Server.Port)
 	gohttp := http.Server{

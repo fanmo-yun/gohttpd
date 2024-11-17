@@ -7,7 +7,8 @@ import (
 )
 
 func main() {
-	logger.InitLogger()
+	cleanup := logger.InitLogger()
+	defer cleanup()
 	banner.ShowBanner()
 	server.ServerRun()
 }
