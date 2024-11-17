@@ -18,6 +18,7 @@ type Config struct {
 	Custom  []CustomConfig  `yaml:"custom,omitempty"`
 	Proxy   []ProxyConfig   `yaml:"proxy,omitempty"`
 	Backend []BackendConfig `yaml:"backend,omitempty"`
+	etcd    EtcdConfig      `yaml:"etcd"`
 }
 
 type ServerConfig struct {
@@ -48,6 +49,11 @@ type ProxyConfig struct {
 
 type BackendConfig struct {
 	BackendURL string `yaml:"url"`
+}
+
+type EtcdConfig struct {
+	Endpoints   []string `yaml:"endpoints"`
+	ServiceName string   `yaml:"servicename"`
 }
 
 func DefaultServer() *ServerConfig {

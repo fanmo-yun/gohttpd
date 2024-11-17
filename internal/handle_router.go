@@ -1,4 +1,4 @@
-package server
+package internal
 
 import (
 	"gohttpd/utils"
@@ -29,7 +29,7 @@ func Handle(response http.ResponseWriter, request *http.Request) *url.URL {
 	return parsedURL
 }
 
-func HandleRouter(config *utils.Config) http.HandlerFunc {
+func HandleRouter(config utils.Config) http.HandlerFunc {
 	proxies := CreateProxies(config.Proxy)
 	backends := NewBackend(config.Backend)
 	loadBalancer := NewLoadBalancer(backends)

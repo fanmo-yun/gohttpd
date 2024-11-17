@@ -1,4 +1,4 @@
-package server
+package internal
 
 import (
 	"context"
@@ -14,15 +14,15 @@ import (
 	"go.uber.org/zap"
 )
 
-func ServerRun() {
-	config := utils.LoadConfig()
-	cleanup := logger.NewLogger(config.Logger)
+func ServerRun(c utils.Config) {
+
+	cleanup := logger.NewLogger(c.Logger)
 	defer cleanup()
 
-	address := fmt.Sprintf("%s:%s", config.Server.Host, config.Server.Port)
+	address := fmt.Sprintf("%s:%s", c.Server.Host, c.Server.Port)
 	gohttp := http.Server{
 		Addr:    address,
-		Handler: HandleRouter(config),
+		Handler: HandleRouter(c),
 	}
 
 	go func() {

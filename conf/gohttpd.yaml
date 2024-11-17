@@ -12,6 +12,11 @@ logger:
 
 gzip: true
 
+etcd:
+  endpoints:
+    - 127.0.0.1:2379
+  servicename: web-service
+
 # custom:
 #   - url: /aaa
 #     file: /a/aaa.html
