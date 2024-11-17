@@ -7,7 +7,7 @@ html:
   index: index.html
 
 logger:
-  out: file
+  out: console
   level: info
 
 gzip: true

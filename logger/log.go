@@ -3,7 +3,7 @@ package logger
 import (
 	"fmt"
 	"gohttpd/utils"
-	"os"
+	"log"
 	"path/filepath"
 	"time"
 
@@ -11,6 +11,14 @@ import (
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
+
+func InitLogger() {
+	zaplog, err := zap.NewProduction()
+	if err != nil {
+		log.Fatalf("gohttpd: %v\n", err.Error())
+	}
+	zap.ReplaceGlobals(zaplog)
+}
 
 func NewLogger(lc utils.LoggerConfig) {
 	switch lc.Out {
@@ -20,7 +28,6 @@ func NewLogger(lc utils.LoggerConfig) {
 		NewFileLogger(lc.Level)
 	default:
 		zap.L().Fatal("gohttpd: Log Output Error type")
-		os.Exit(1002)
 	}
 }
 
@@ -29,7 +36,6 @@ func NewStdOutLogger(l string) {
 	err := logLevel.UnmarshalText([]byte(l))
 	if err != nil {
 		zap.L().Fatal("gohttpd: Log Level Init Fatal", zap.String("unmarshaltext", err.Error()))
-		os.Exit(1002)
 	}
 
 	cfg := zap.Config{
@@ -44,7 +50,6 @@ func NewStdOutLogger(l string) {
 	logger, err := cfg.Build()
 	if err != nil {
 		zap.L().Fatal("gohttpd: Log Build Fatal", zap.String("build", err.Error()))
-		os.Exit(1002)
 	}
 
 	zap.ReplaceGlobals(logger)
@@ -55,7 +60,6 @@ func NewFileLogger(l string) {
 	err := logLevel.UnmarshalText([]byte(l))
 	if err != nil {
 		zap.L().Fatal("gohttpd: Log Level Init Fatal", zap.String("unmarshaltext", err.Error()))
-		os.Exit(1002)
 	}
 
 	timestamp := time.Now().Format("2006-01-02T15-04-05")

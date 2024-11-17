@@ -108,7 +108,6 @@ func CoverConfig(c *Config) {
 					c.Static.Index = s[1]
 				} else {
 					zap.L().Fatal("gohttpd: Config Cannot Init")
-					os.Exit(1001)
 				}
 			}
 		}
@@ -121,11 +120,9 @@ func LoadConfig() *Config {
 	confData, readErr := os.ReadFile(configPath)
 	if readErr != nil {
 		zap.L().Fatal("gohttpd: Config Cannot Init", zap.String("config", readErr.Error()))
-		os.Exit(1001)
 	}
 	if unmarshalErr := yaml.Unmarshal(confData, &config); unmarshalErr != nil {
 		zap.L().Fatal("gohttpd: Config Cannot Unmarshal", zap.String("config", unmarshalErr.Error()))
-		os.Exit(1001)
 	}
 	CoverConfig(&config)
 	return &config
