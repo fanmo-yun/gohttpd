@@ -2,12 +2,20 @@ package main
 
 import (
 	"gohttpd/banner"
+	web "gohttpd/internal"
 	"gohttpd/logger"
+	"gohttpd/utils"
+	"log"
 )
 
 func main() {
-	cleanup := logger.InitLogger()
+	config, err := utils.LoadConfig()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	cleanup := logger.NewLogger(config.Logger)
 	defer cleanup()
+
 	banner.ShowBanner()
-	ParseCommandAndRun()
+	web.ServerRun(*config)
 }

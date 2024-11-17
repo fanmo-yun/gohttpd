@@ -3,7 +3,6 @@ package internal
 import (
 	"context"
 	"fmt"
-	"gohttpd/logger"
 	"gohttpd/utils"
 	"net/http"
 	"os"
@@ -15,10 +14,6 @@ import (
 )
 
 func ServerRun(c utils.Config) {
-
-	cleanup := logger.NewLogger(c.Logger)
-	defer cleanup()
-
 	address := fmt.Sprintf("%s:%s", c.Server.Host, c.Server.Port)
 	gohttp := http.Server{
 		Addr:    address,

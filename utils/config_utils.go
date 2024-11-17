@@ -1,12 +1,12 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
 
-	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 )
 
@@ -18,7 +18,6 @@ type Config struct {
 	Custom  []CustomConfig  `yaml:"custom"`
 	Proxy   []ProxyConfig   `yaml:"proxy"`
 	Backend []BackendConfig `yaml:"backend"`
-	Etcd    EtcdConfig      `yaml:"etcd"`
 }
 
 type ServerConfig struct {
@@ -51,11 +50,6 @@ type BackendConfig struct {
 	BackendURL string `yaml:"url"`
 }
 
-type EtcdConfig struct {
-	Endpoints   []string `yaml:"endpoints"`
-	ServiceName string   `yaml:"servicename"`
-}
-
 func DefaultServer() *ServerConfig {
 	return &ServerConfig{
 		Host: "0.0.0.0",
@@ -80,7 +74,7 @@ func DefaultLogger() *LoggerConfig {
 
 func TrimSpace(in string) string { return strings.Trim(in, " ") }
 
-func (c *Config) CoverConfig() {
+func (c *Config) CoverConfig() error {
 	if reflect.DeepEqual(c.Server, ServerConfig{}) {
 		c.Server = *DefaultServer()
 	} else {
@@ -115,27 +109,26 @@ func (c *Config) CoverConfig() {
 				if len(s) > 1 {
 					c.Static.Index = s[1]
 				} else {
-					zap.L().Fatal("gohttpd: html config Cannot Init")
+					return fmt.Errorf("html config Cannot Init")
 				}
 			}
 		}
 	}
-
-	if reflect.DeepEqual(c.Etcd, EtcdConfig{}) || len(c.Etcd.Endpoints) == 0 || TrimSpace(c.Etcd.ServiceName) == "" {
-		zap.L().Fatal("gohttpd: etcd config required")
-	}
+	return nil
 }
 
-func LoadConfig() *Config {
+func LoadConfig() (*Config, error) {
 	var config Config
 	configPath := filepath.Join("conf", "gohttpd.yaml")
 	confData, readErr := os.ReadFile(configPath)
 	if readErr != nil {
-		zap.L().Fatal("gohttpd: Config Cannot Init", zap.String("config", readErr.Error()))
+		return nil, fmt.Errorf("failed to read config file: %v", readErr)
 	}
 	if unmarshalErr := yaml.Unmarshal(confData, &config); unmarshalErr != nil {
-		zap.L().Fatal("gohttpd: Config Cannot Unmarshal", zap.String("config", unmarshalErr.Error()))
+		return nil, fmt.Errorf("failed to unmarshal config file: %v", unmarshalErr)
 	}
-	config.CoverConfig()
-	return &config
+	if err := config.CoverConfig(); err != nil {
+		return nil, err
+	}
+	return &config, nil
 }
