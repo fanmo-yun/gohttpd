@@ -3,7 +3,6 @@ package logger
 import (
 	"fmt"
 	"gohttpd/utils"
-	"log"
 	"path/filepath"
 	"time"
 
@@ -14,15 +13,6 @@ import (
 
 func ZapSync() {
 	zap.L().Sync()
-}
-
-func InitLogger() func() {
-	zaplog, err := zap.NewProduction()
-	if err != nil {
-		log.Fatalf("gohttpd: %v\n", err.Error())
-	}
-	zap.ReplaceGlobals(zaplog)
-	return ZapSync
 }
 
 func NewLogger(lc utils.LoggerConfig) func() {
