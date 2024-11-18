@@ -11,7 +11,7 @@ import (
 func main() {
 	config, err := utils.LoadConfig()
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatalf("gohttpd: %v\n", err.Error())
 	}
 	cleanup := logger.NewLogger(config.Logger)
 	defer cleanup()

@@ -14,7 +14,7 @@ import (
 )
 
 func SendHTTPErrorResponse(response http.ResponseWriter, status int) {
-	msg := "gohttp: " + http.StatusText(status)
+	msg := "gohttpd: " + http.StatusText(status)
 	zap.L().Error("gohttpd: HTTP error response", zap.Int("status", status), zap.String("message", msg))
 	response.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	response.WriteHeader(status)
